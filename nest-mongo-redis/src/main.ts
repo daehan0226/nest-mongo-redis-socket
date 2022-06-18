@@ -1,22 +1,27 @@
 import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
-import { WasModule } from './app.module';
-import { EventsModule } from './events/events.module';
+import { ObserverModule } from './observer/observer.module';
+import { WasModule } from './was/was.module';
+import { EventsModule } from './websocket/events.module';
 
-const service = process.env.SERVICE ?? 'local';
-const port = process.env.PORT ?? 8080;
+const service = process.env.SERVICE ?? 'was';
+const port = process.env.PORT ?? 3001;
 
 let AppModule;
 
-if (service === 'was') {
-  AppModule = WasModule;
-} else {
+if (service === 'ws') {
   AppModule = EventsModule;
+} else if (service === 'observer') {
+  AppModule = ObserverModule;
+} else {
+  AppModule = WasModule;
 }
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useWebSocketAdapter(new WsAdapter(app));
+  if (service === 'ws') {
+    app.useWebSocketAdapter(new WsAdapter(app));
+  }
   console.log(`running ${service} on port ${port}`);
   await app.listen(port);
 }
