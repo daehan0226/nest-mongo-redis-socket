@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <script>
+      const socket = new WebSocket('ws://localhost:4002/ws?userId=1');
+      socket.onopen = function(soc) {
+        console.log('Connected');
+        const date = new Date()
+        socket.send(
+          JSON.stringify({
+            event: 'events',
+            data: date,
+          }),
+        );
+        socket.onmessage = function(data) {
+          console.log('date message : ', data);
+        };
+        
+        socket.send(
+          JSON.stringify({
+            event: 'users',
+            data: {userId: "userId1"}
+          }),
+        );
+        socket.onmessage = function(data) {
+          console.log('users message : ', data);
+        };
+      };
+    </script>
+  </head>
+
+  <body></body>
+</html>

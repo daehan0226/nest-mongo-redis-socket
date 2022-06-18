@@ -1,0 +1,55 @@
+version: "3"
+services:
+  nginx:
+    build: ./proxy
+    ports:
+      - 80:80
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf
+      - ./proxy/static/:/app/static
+    container_name: proxy
+    depends_on:
+      - was
+  was:
+    container_name: was
+    restart: always
+    build: ./nest-mongo-redis
+    ports:
+      - "${WAS_PORT}:${WAS_PORT}"
+    environment:
+      - "SERVICE=was"
+      - "PORT=${WAS_PORT}"
+  ws:
+    container_name: ws
+    restart: always
+    build: ./nest-mongo-redis
+    ports:
+      - "${WS_PORT}:${WS_PORT}"
+    environment:
+      - "SERVICE=ws"
+      - "PORT=${WS_PORT}"
+  observer:
+    container_name: observer
+    restart: always
+    build: ./nest-mongo-redis
+    ports:
+      - "${OBSERVER_PORT}:${OBSERVER_PORT}"
+    environment:
+      - "SERVICE=observer"
+      - "PORT=${OBSERVER_PORT}"
+  mongo:
+    container_name: mongo
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+  redis:
+    container_name: redis
+    image: redis:4.0.6
+    ports:
+      - "6379:6379"
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.8.9
+    ports:
+      - "15672:15672"
+      - "5672:5672"
